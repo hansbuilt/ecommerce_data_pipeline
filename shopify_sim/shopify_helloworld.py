@@ -1,10 +1,12 @@
 import os
-
 import requests
 import pandas as pd
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# https://shopify.dev/docs/api/admin-graphql#rate-limits
 
 
 def get_all_products_df():
@@ -89,3 +91,75 @@ def get_all_customers_df():
     # missing pagination for now
 
     return df
+
+
+def create_order_TEST():
+    """Create a single order - hardcoded values for testing."""
+
+    store_name = os.getenv("store_name")
+    access_token = os.getenv("access_token")
+
+    base_url = (
+        f"https://{store_name}.myshopify.com/admin/api/2025-01/graphql.json"
+    )
+
+    headers = {
+        "X-Shopify-Access-Token": access_token,
+        "Content-Type": "application/json",
+    }
+
+    mutation = """
+        mutation CreateOrder($order: OrderCreateOrderInput!) {
+          orderCreate(order: $order) {
+            order {
+              id
+              name
+              email
+              createdAt
+              totalPriceSet {
+                shopMoney {
+                  amount
+                  currencyCode
+                }
+              }
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }
+        """
+
+    variables = {
+        "order": {
+            "email": "customer@example.com",
+            "customerId": "gid://shopify/Customer/9413291442458",
+            "lineItems": [
+                {
+                    "variantId": "gid://shopify/ProductVariant/51245325123866",
+                    "quantity": 1,
+                },
+                {
+                    "variantId": "gid://shopify/ProductVariant/51245325680922",
+                    "quantity": 2,
+                },
+            ],
+            "financialStatus": "PAID",
+        }
+    }
+
+    response = requests.post(
+        base_url,
+        headers=headers,
+        json={"query": mutation, "variables": variables},
+    )
+
+    if response.status_code == 200:
+        data = response.json()
+        if "errors" in data:
+            print("GraphQL errors:", json.dumps(data["errors"], indent=2))
+        else:
+            print(json.dumps(data, indent=2))
+    else:
+        print(f"HTTP error {response.status_code}: {response.text}")
