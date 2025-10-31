@@ -249,3 +249,88 @@ def create_order_TEST():
             print(json.dumps(data, indent=2))
     else:
         print(f"HTTP error {response.status_code}: {response.text}")
+
+
+def create_customer(
+    first_name,
+    last_name,
+    email,
+    phone=None,
+):
+    """Create a single customer. (GraphQL)"""
+
+    """
+    first_name = 'testf'
+    last_name = 'testl'
+    email = 'test2@example.com'
+    phone=None
+
+    create_customer('testf1', 'testl1', 'test11@test.com')
+    """
+
+    store_name = os.getenv("store_name")
+    access_token = os.getenv("access_token")
+
+    url = f"https://{store_name}.myshopify.com/admin/api/2025-10/graphql.json"
+
+    headers = {
+        "X-Shopify-Access-Token": access_token,
+        "Content-Type": "application/json",
+    }
+
+    query = """
+    mutation createCustomer($input: CustomerInput!) {
+      customerCreate(input: $input) {
+        customer {
+          id
+          firstName
+          lastName
+          email
+          phone
+          createdAt
+        
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+    """
+
+    variables = {
+        "input": {
+            "firstName": first_name,
+            "lastName": last_name,
+            "email": email,
+            "phone": phone,
+        }
+    }
+
+    response = requests.post(
+        url, headers=headers, json={"query": query, "variables": variables}
+    )
+    data = response.json()
+
+    if response.status_code != 200:
+        raise Exception(f"Request failed: {response.text}")
+
+    if "errors" in data:
+        errorlist = data["errors"]
+
+        if len(errorlist) > 0:
+            for e in errorlist:
+                print(f"Error: {e['message']}")
+            return None
+
+    customer = data["data"]["customerCreate"]["customer"]
+    print(
+        f"Created customer {customer['firstName']} {customer['lastName']} ({customer['email']})"
+    )
+
+    return customer
+
+
+# customer creation function
+# customer creation dataset - random name, addr, email, etc
+# order building dataset - order count, random (weighted) selection of customer, line item count, variantIDs, quantities,
