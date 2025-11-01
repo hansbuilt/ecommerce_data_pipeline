@@ -255,6 +255,11 @@ def create_customer(
     first_name,
     last_name,
     email,
+    address1,
+    city,
+    province,
+    country,
+    zipcode,
     phone=None,
 ):
     """Create a single customer. (GraphQL)"""
@@ -264,6 +269,11 @@ def create_customer(
     last_name = 'testl'
     email = 'test2@example.com'
     phone=None
+    address1='123 Main St'
+    city='Milwaukee'
+    province='WI'
+    country='US'
+    zipcode='53202'
 
     create_customer('testf1', 'testl1', 'test11@test.com')
     """
@@ -288,6 +298,14 @@ def create_customer(
           email
           phone
           createdAt
+          addresses {
+              id
+              address1
+              city
+              province
+              country
+              zip
+              }
         
         }
         userErrors {
@@ -304,6 +322,15 @@ def create_customer(
             "lastName": last_name,
             "email": email,
             "phone": phone,
+            "addresses": [
+                {
+                    "address1": address1,
+                    "city": city,
+                    "province": province,
+                    "country": country,
+                    "zip": zipcode,
+                }
+            ],
         }
     }
 
@@ -323,7 +350,15 @@ def create_customer(
                 print(f"Error: {e['message']}")
             return None
 
+    if "userErrors" in data["data"]["customerCreate"]:
+        userErrorList = data["data"]["customerCreate"]["userErrors"]
+        if len(userErrorList) > 0:
+            for e in userErrorList:
+                print(f"Error: {e['field']} || {e['message']}")
+            return None
+
     customer = data["data"]["customerCreate"]["customer"]
+
     print(
         f"Created customer {customer['firstName']} {customer['lastName']} ({customer['email']})"
     )
