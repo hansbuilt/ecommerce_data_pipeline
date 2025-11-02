@@ -5,6 +5,7 @@ import json
 from dotenv import load_dotenv
 import random
 from faker import Faker
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -181,7 +182,9 @@ def get_all_customers_df():
     return df
 
 
-def create_order_narrowscope(customerId, lineItemList, addressDict):
+def create_order_narrowscope(
+    customerId, lineItemList, addressDict, processedAt=None
+):
     """Create a single order with limited scope for the purposes of mocking up orders.
 
     customerId - int, will get joined with "gid://shopify/Customer/" string
@@ -233,6 +236,7 @@ def create_order_narrowscope(customerId, lineItemList, addressDict):
               name
               email
               createdAt
+              processedAt
               shippingAddress {
                     firstName
                     lastName
@@ -274,6 +278,7 @@ def create_order_narrowscope(customerId, lineItemList, addressDict):
             "lineItems": lineItemList,
             "shippingAddress": addressDict,
             "billingAddress": addressDict,
+            # "processedAt": processedAt,
             # "lineItems": [
             #     {
             #         "variantId": "gid://shopify/ProductVariant/51245325123866",
@@ -305,6 +310,10 @@ def create_order_narrowscope(customerId, lineItemList, addressDict):
             "financialStatus": "PAID",
         }
     }
+
+    # if processedAt is included, added it to the payload
+    if processedAt:
+        variables["order"]["processedAt"] = processedAt
 
     response = requests.post(
         base_url,
@@ -516,7 +525,19 @@ def customer_single_generator():
     )
 
 
-def order_single_generator():
+def pick_random_date_last_24_months():
+    """Pick a random date within the last 24 months."""
+
+    now = datetime.utcnow()
+    start = now - timedelta(days=365 * 2)
+    delta_seconds = int((now - start).total_seconds())
+    random_seconds = random.randint(0, delta_seconds)
+    random_date = start + timedelta(seconds=random_seconds)
+
+    return random_date.isoformat() + "Z"
+
+
+def order_single_generator(randDate=False):
     """Generate a single random order."""
 
     # gather random single existing customer (need name, address, email)
@@ -552,7 +573,15 @@ def order_single_generator():
 
         lineItemList.append({"variantId": variant, "quantity": quantity})
 
-    create_order_narrowscope(customerId, lineItemList, addressDict)
+    # randomly select a date, if option picked, else it'll be the current time
+    if randDate:
+        processedAt = pick_random_date_last_24_months()
+    else:
+        processedAt = None
+
+    create_order_narrowscope(
+        customerId, lineItemList, addressDict, processedAt
+    )
 
     print("done")
 
