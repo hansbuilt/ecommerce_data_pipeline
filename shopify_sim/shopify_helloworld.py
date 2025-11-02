@@ -179,8 +179,37 @@ def get_all_customers_df():
     return df
 
 
-def create_order_TEST():
-    """Create a single order - hardcoded values for testing."""
+def create_order_narrowscope(customerId, lineItemList, addressDict):
+    """Create a single order with limited scope for the purposes of mocking up orders.
+
+    customerId - int, will get joined with "gid://shopify/Customer/" string
+    lineItemList - a list of dicts, one list item per lineitem, each list item a dict of variantID and quantity
+    addressDict - a dict of firstName, lastName, address1, city, province, country, zip; will use same address for billto and shipto
+
+    example args:
+        customerId = 9413291442458
+        lineItemList = [
+            {
+                "variantId": "gid://shopify/ProductVariant/51245325123866",
+                "quantity": 1,
+            },
+            {
+                "variantId": "gid://shopify/ProductVariant/51245325680922",
+                "quantity": 2,
+            },
+        ]
+        addressDict = {
+            "firstName": "Jane",
+            "lastName": "Doe",
+            "address1": "123 Main St",
+            "city": "Milwaukee",
+            "province": "WI",
+            "country": "US",
+            "zip": "53202",
+        }
+
+
+    """
 
     store_name = os.getenv("store_name")
     access_token = os.getenv("access_token")
@@ -202,6 +231,24 @@ def create_order_TEST():
               name
               email
               createdAt
+              shippingAddress {
+                    firstName
+                    lastName
+                    address1
+                    city
+                    province
+                    country
+                    zip
+                  }
+                  billingAddress {
+                    firstName
+                    lastName
+                    address1
+                    city
+                    province
+                    country
+                    zip
+                  }
               totalPriceSet {
                 shopMoney {
                   amount
@@ -219,18 +266,40 @@ def create_order_TEST():
 
     variables = {
         "order": {
-            "email": "customer@example.com",
-            "customerId": "gid://shopify/Customer/9413291442458",
-            "lineItems": [
-                {
-                    "variantId": "gid://shopify/ProductVariant/51245325123866",
-                    "quantity": 1,
-                },
-                {
-                    "variantId": "gid://shopify/ProductVariant/51245325680922",
-                    "quantity": 2,
-                },
-            ],
+            # "email": "customerr@example.com",
+            # "customerId": "gid://shopify/Customer/9413291442458",
+            "customerId": f"gid://shopify/Customer/{customerId}",
+            "lineItems": lineItemList,
+            "shippingAddress": addressDict,
+            "billingAddress": addressDict,
+            # "lineItems": [
+            #     {
+            #         "variantId": "gid://shopify/ProductVariant/51245325123866",
+            #         "quantity": 1,
+            #     },
+            #     {
+            #         "variantId": "gid://shopify/ProductVariant/51245325680922",
+            #         "quantity": 2,
+            #     },
+            # ],
+            # "shippingAddress": {
+            #     "firstName": "Jane",
+            #     "lastName": "Doe",
+            #     "address1": "123 Main St",
+            #     "city": "Milwaukee",
+            #     "province": "WI",
+            #     "country": "US",
+            #     "zip": "53202",
+            # },
+            # "billingAddress": {
+            #     "firstName": "Jane",
+            #     "lastName": "Doe",
+            #     "address1": "123 Main St",
+            #     "city": "Milwaukee",
+            #     "province": "WI",
+            #     "country": "US",
+            #     "zip": "53202",
+            # },
             "financialStatus": "PAID",
         }
     }
@@ -247,6 +316,7 @@ def create_order_TEST():
             print("GraphQL errors:", json.dumps(data["errors"], indent=2))
         else:
             print(json.dumps(data, indent=2))
+            print("Order created successfully")
     else:
         print(f"HTTP error {response.status_code}: {response.text}")
 
