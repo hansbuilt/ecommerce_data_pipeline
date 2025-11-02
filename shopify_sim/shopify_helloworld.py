@@ -3,6 +3,8 @@ import requests
 import pandas as pd
 import json
 from dotenv import load_dotenv
+import random
+from faker import Faker
 
 load_dotenv()
 
@@ -434,6 +436,125 @@ def create_customer(
     )
 
     return customer
+
+
+def random_number_exp(min_qty, max_qty, weight):
+    """Return a random order size biased toward small values, using an exponential distribution."""
+    # ^2 = moderate bias, ^3 = stronger
+    r = random.random() ** weight
+    return int(min_qty + (max_qty - min_qty) * r)
+
+
+def get_random_citystatezip():
+    """
+    Returns the city, state, zipcode values of a random location in the USA, weighted by population.
+
+    Uses dataset from here: https://www.kaggle.com/datasets/bwandowando/us-zip-codes-database-from-simplemaps-com?resource=download
+
+    """
+
+    dataloc = "../data/uszips.csv"
+
+    # ensure leading zeros on zip are retained
+    df = pd.read_csv(dataloc, dtype={"zip": str})
+
+    randloc = df.sample(n=1, weights="population", random_state=None)
+
+    city, state, zipcode = randloc.iloc[0][["city", "state_id", "zip"]]
+
+    return city, state, zipcode
+
+
+def get_fake_nameaddressemail_dict():
+    """
+    Returns a dict of firstName, lastName, address1, city, province, country (US is hardcoded), and zip.
+
+    """
+
+    fake = Faker()
+
+    # get fake random first and last name
+    firstName = fake.first_name()
+    lastName = fake.last_name()
+    email = fake.email()
+
+    # get fake random address from Faker, but just keep the first address line
+    address = fake.address()
+    address1 = address.split("\n")[0]
+
+    # get a legit city/state/zip
+    city, state, zipcode = get_random_citystatezip()
+
+    addr = {
+        "firstName": firstName,
+        "lastName": lastName,
+        "address1": address1,
+        "city": city,
+        "province": state,
+        "country": "US",
+        "zip": zipcode,
+        "email": email,
+    }
+
+    print(addr)
+
+    return addr
+
+
+def customer_single_generator():
+    d = get_fake_nameaddressemail_dict()
+
+    create_customer(
+        d["firstName"],
+        d["lastName"],
+        d["email"],
+        d["address1"],
+        d["city"],
+        d["province"],
+        d["country"],
+        d["zip"],
+    )
+
+
+def order_single_generator():
+    """Generate a single random order."""
+
+    # gather random single existing customer (need name, address, email)
+    dfcust = get_all_customers_df().sample(n=1)
+
+    customerId = int(dfcust["id"].values[0])
+
+    # build cust address dict for order
+    addressDict = {
+        "firstName": dfcust["default_address.first_name"].values[0],
+        "lastName": dfcust["default_address.last_name"].values[0],
+        "address1": dfcust["default_address.address1"].values[0],
+        "city": dfcust["default_address.city"].values[0],
+        "province": dfcust["default_address.province"].values[0],
+        "country": dfcust["default_address.country"].values[0],
+        "zip": dfcust["default_address.zip"].values[0],
+    }
+
+    # gather all existing product variants (need the ids)
+    dfvars = get_product_variants_df()
+
+    # get a list of variant IDs to select from
+    variants = dfvars["variant_id"].tolist()
+
+    # get the randomly selected count of line items for the order
+    lineCount = random_number_exp(1, 5, 3)
+
+    lineItemList = []
+    for i in range(0, lineCount):
+        # randomly select a variant, randomly choose the number ordered
+        variant = random.choice(variants)
+        quantity = random_number_exp(1, 3, 3)
+
+        lineItemList.append({"variantId": variant, "quantity": quantity})
+
+    create_order_narrowscope(customerId, lineItemList, addressDict)
+
+    print("done")
 
 
 # customer creation function
