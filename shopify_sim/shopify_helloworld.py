@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import random
 from faker import Faker
 from datetime import datetime, timedelta
+import time
 
 load_dotenv()
 
@@ -586,6 +587,25 @@ def order_single_generator(randDate=False):
     print("done")
 
 
-# customer creation function
-# customer creation dataset - random name, addr, email, etc
-# order building dataset - order count, random (weighted) selection of customer, line item count, variantIDs, quantities,
+def create_multiple_customers(customerCount):
+    """Generate a specified number of customers."""
+
+    for i in range(0, customerCount):
+        try:
+            customer_single_generator()
+        except:
+            break
+
+
+def create_multiple_orders(orderCount):
+    """Generate a specified number of orders. Per Shopify documentation, only 5 allowed per minute on dev stores."""
+
+    for i in range(0, orderCount):
+        try:
+            order_single_generator(randDate=True)
+        except:
+            break
+        finally:
+            print(f"Created order {i+1} of {orderCount}")
+            print("Sleeping 13 seconds...")
+            time.sleep(13)
