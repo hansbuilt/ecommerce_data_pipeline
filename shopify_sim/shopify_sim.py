@@ -19,9 +19,7 @@ def get_all_products_df():
     store_name = os.getenv("store_name")
     access_token = os.getenv("access_token")
 
-    base_url = (
-        f"https://{store_name}.myshopify.com/admin/api/2025-10/products.json"
-    )
+    base_url = f"https://{store_name}.myshopify.com/admin/api/2025-10/products.json"
 
     headers = {
         "X-Shopify-Access-Token": access_token,
@@ -133,9 +131,7 @@ def get_all_orders_df():
     store_name = os.getenv("store_name")
     access_token = os.getenv("access_token")
 
-    base_url = (
-        f"https://{store_name}.myshopify.com/admin/api/2025-10/orders.json"
-    )
+    base_url = f"https://{store_name}.myshopify.com/admin/api/2025-10/orders.json"
 
     headers = {
         "X-Shopify-Access-Token": access_token,
@@ -161,9 +157,7 @@ def get_all_customers_df():
     store_name = os.getenv("store_name")
     access_token = os.getenv("access_token")
 
-    base_url = (
-        f"https://{store_name}.myshopify.com/admin/api/2025-10/customers.json"
-    )
+    base_url = f"https://{store_name}.myshopify.com/admin/api/2025-10/customers.json"
 
     headers = {
         "X-Shopify-Access-Token": access_token,
@@ -183,9 +177,7 @@ def get_all_customers_df():
     return df
 
 
-def create_order_narrowscope(
-    customerId, lineItemList, addressDict, processedAt=None
-):
+def create_order_narrowscope(customerId, lineItemList, addressDict, processedAt=None):
     """Create a single order with limited scope for the purposes of mocking up orders.
 
     customerId - int, will get joined with "gid://shopify/Customer/" string
@@ -220,9 +212,7 @@ def create_order_narrowscope(
     store_name = os.getenv("store_name")
     access_token = os.getenv("access_token")
 
-    base_url = (
-        f"https://{store_name}.myshopify.com/admin/api/2025-01/graphql.json"
-    )
+    base_url = f"https://{store_name}.myshopify.com/admin/api/2025-01/graphql.json"
 
     headers = {
         "X-Shopify-Access-Token": access_token,
@@ -463,7 +453,7 @@ def get_random_citystatezip():
 
     """
 
-    dataloc = "../data/uszips.csv"
+    dataloc = "../data_supp/uszips.csv"
 
     # ensure leading zeros on zip are retained
     df = pd.read_csv(dataloc, dtype={"zip": str})
@@ -580,9 +570,7 @@ def order_single_generator(randDate=False):
     else:
         processedAt = None
 
-    create_order_narrowscope(
-        customerId, lineItemList, addressDict, processedAt
-    )
+    create_order_narrowscope(customerId, lineItemList, addressDict, processedAt)
 
     print("done")
 
@@ -595,6 +583,8 @@ def create_multiple_customers(customerCount):
             customer_single_generator()
         except:
             break
+        finally:
+            print(f"Created customer {i+1} of {customerCount}")
 
 
 def create_multiple_orders(orderCount):
