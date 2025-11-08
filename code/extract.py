@@ -29,7 +29,10 @@ def extract_allproducts_csv(fileloc="../data_raw/"):
 file_path = "../data_raw/20251104_212802 shopify_allproducts.csv"
 
 
-def load_to_bigquery(file_path):
+def load_to_bigquery(file_path, destination_loc):
+    """Uploads a csv to a BigQuery table. Converts csv to a df and cleans column titles before loading.
+    Destination loc should be in the format ".<dataset name>.<table name>", like ".raw.products_raw"
+    """
 
     project = os.getenv("gcp_bigquery_project_name")
 
@@ -40,7 +43,5 @@ def load_to_bigquery(file_path):
     # quick edit to test upload
     df.columns = df.columns.str.replace(".", "_", regex=False)
 
-    client.load_table_from_dataframe(
-        df, project + ".raw.products_raw"
-    ).result()
-    print(f" Loaded {file_path} to BigQuery")
+    client.load_table_from_dataframe(df, project + destination_loc).result()
+    print(f" Loaded {file_path} to BigQuery location {destination_loc}")
