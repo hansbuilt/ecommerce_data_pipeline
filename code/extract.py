@@ -1,6 +1,8 @@
 import shopify_gen as sho
 import pandas as pd
 from datetime import datetime
+from google.cloud import bigquery
+import os
 
 
 def get_timestamp_prefix():
@@ -22,3 +24,23 @@ def extract_allproducts_csv(fileloc="../data_raw/"):
     df.to_csv(filefullpath, index=False)
 
     print(f"File created: {filefullpath}")
+
+
+file_path = "../data_raw/20251104_212802 shopify_allproducts.csv"
+
+
+def load_to_bigquery(file_path):
+
+    project = os.getenv("gcp_bigquery_project_name")
+
+    client = bigquery.Client(project=project)
+
+    df = pd.read_csv(file_path)
+
+    # quick edit to test upload
+    df.columns = df.columns.str.replace(".", "_", regex=False)
+
+    client.load_table_from_dataframe(
+        df, project + ".raw.products_raw"
+    ).result()
+    print(f" Loaded {file_path} to BigQuery")
