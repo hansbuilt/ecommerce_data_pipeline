@@ -12,21 +12,26 @@ def get_timestamp_prefix():
     return timestamp_prefix
 
 
-def extract_allproducts_csv(fileloc="../data_raw/"):
-    """Creates a raw csv extract of the all products GET request."""
+def extract_df_to_csv(df_function, filename, fileloc="../data_raw/"):
+    """
+    Creates a raw csv extract from the chosen df returning function, with choice of filename, defaulting to the raw data location.
+    Returns full file loc.
+    """
+    # extract_df_to_csv(sho.get_all_products_df(), 'shopify_allproducts')
+    # extract_df_to_csv(sho.get_all_customers_df()(), 'shopify_allcustomers')
+    # extract_df_to_csv(sho.get_all_orders_df(), 'shopify_allorders')
+    # extract_df_to_csv(sho.get_product_variants_df(), 'shopify_allproductvariants')
 
-    df = sho.get_all_products_df()
+    df = df_function
 
     prefix = get_timestamp_prefix()
 
-    filefullpath = fileloc + prefix + " shopify_allproducts.csv"
+    filefullpath = f"{fileloc}{prefix} {filename}.csv"
 
     df.to_csv(filefullpath, index=False)
 
     print(f"File created: {filefullpath}")
-
-
-file_path = "../data_raw/20251104_212802 shopify_allproducts.csv"
+    return filefullpath
 
 
 def load_to_bigquery(file_path, destination_loc):
