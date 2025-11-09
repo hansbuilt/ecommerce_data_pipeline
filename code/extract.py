@@ -35,7 +35,8 @@ def extract_df_to_csv(df_function, filename, fileloc="../data_raw/"):
 
 
 def load_to_bigquery(file_path, destination_loc):
-    """Uploads a csv to a BigQuery table. Converts csv to a df and cleans column titles before loading.
+    """
+    Uploads a csv to a BigQuery table. Converts csv to a df and cleans column titles before loading.
     Destination loc should be in the format ".<dataset name>.<table name>", like ".raw.products_raw"
     """
 
@@ -50,3 +51,37 @@ def load_to_bigquery(file_path, destination_loc):
 
     client.load_table_from_dataframe(df, project + destination_loc).result()
     print(f" Loaded {file_path} to BigQuery location {destination_loc}")
+
+
+def allproducts_extract_upload():
+    """Creates a csv of the all products extract and loads to BigQuery."""
+
+    file = extract_df_to_csv(sho.get_all_products_df(), "shopify_allproducts")
+
+    load_to_bigquery(file, ".raw.products_raw")
+
+    print("done")
+
+
+def allcustomers_extract_upload():
+    """Creates a csv of the all customer extract and loads to BigQuery."""
+
+    file = extract_df_to_csv(
+        sho.get_all_customers_df(), "shopify_allcustomers"
+    )
+
+    load_to_bigquery(file, ".raw.customers_raw")
+
+    print("done")
+
+
+def allproductvariants_extract_upload():
+    """Creates a csv of the all product variants extract and loads to BigQuery."""
+
+    file = extract_df_to_csv(
+        sho.get_product_variants_df(), "shopify_allproductvariants"
+    )
+
+    load_to_bigquery(file, ".raw.productvariants_raw")
+
+    print("done")
