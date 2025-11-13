@@ -11,7 +11,6 @@ WITH raw_customers AS (
     FROM {{ source('raw_data','customers_raw') }}
 )
 
-
 SELECT
     customer_id,
     JSON_VALUE(addr, '$.id') AS customer_address_id,
