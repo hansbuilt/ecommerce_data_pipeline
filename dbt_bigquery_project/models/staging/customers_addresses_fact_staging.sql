@@ -12,8 +12,8 @@ WITH raw_customers AS (
 )
 
 SELECT
-    customer_id,
     JSON_VALUE(addr, '$.id') AS customer_address_id,
+    customer_id,
     JSON_VALUE(addr, '$.first_name') AS first_name,
     JSON_VALUE(addr, '$.last_name') AS last_name,
     JSON_VALUE(addr, '$.company') AS company,
