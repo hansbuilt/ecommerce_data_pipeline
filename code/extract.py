@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime
 from google.cloud import bigquery
 import os
+import gcp_bigquery_gen as gbq
 
 
 def get_timestamp_prefix():
@@ -96,7 +97,7 @@ def allproductvariants_extract_upload():
 def incrementalorders_extract_upload():
     """Creates a csv of the all orders extract and loads to BigQuery."""
 
-    last_updated_dt = datetime(2025, 11, 1)
+    last_updated_dt = gbq.get_last_order_updatedt()
 
     file = extract_df_to_csv(
         sho.get_incremental_orders_df(last_updated_dt),
