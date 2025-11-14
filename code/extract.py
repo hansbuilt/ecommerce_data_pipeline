@@ -34,10 +34,12 @@ def extract_df_to_csv(df_function, filename, fileloc="../data_raw/"):
     return filefullpath
 
 
-def load_to_bigquery(file_path, destination_loc):
+def load_to_bigquery(file_path, destination_loc, disposition="WRITE_TRUNCATE"):
     """
     Uploads a csv to a BigQuery table. Converts csv to a df and cleans column titles before loading.
     Destination loc should be in the format ".<dataset name>.<table name>", like ".raw.products_raw"
+    Disposition dictates the load behavior. Default (and would be if unspecified) is WRITE_TRUNCATE, which overwrites.
+        Use WRITE_APPEND to not overwrite and just append (e.g. incremental loads)
     """
 
     project = os.getenv("gcp_bigquery_project_name")
@@ -49,7 +51,11 @@ def load_to_bigquery(file_path, destination_loc):
     # quick edit to test upload
     df.columns = df.columns.str.replace(".", "_", regex=False)
 
-    client.load_table_from_dataframe(df, project + destination_loc).result()
+    job_config = bigquery.LoadJobConfig(write_disposition=disposition)
+
+    client.load_table_from_dataframe(
+        df, project + destination_loc, job_config=job_config
+    ).result()
     print(f" Loaded {file_path} to BigQuery location {destination_loc}")
 
 
@@ -83,5 +89,20 @@ def allproductvariants_extract_upload():
     )
 
     load_to_bigquery(file, ".raw.productvariants_raw")
+
+    print("done")
+
+
+def incrementalorders_extract_upload():
+    """Creates a csv of the all orders extract and loads to BigQuery."""
+
+    last_updated_dt = datetime(2025, 11, 1)
+
+    file = extract_df_to_csv(
+        sho.get_incremental_orders_df(last_updated_dt),
+        "shopify_incrementalorders",
+    )
+
+    load_to_bigquery(file, ".raw.orders_raw", disposition="WRITE_APPEND")
 
     print("done")
