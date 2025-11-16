@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 from dotenv import load_dotenv
 from datetime import timedelta, datetime
+import json
 
 load_dotenv()
 
@@ -215,6 +216,10 @@ def get_incremental_orders_df(last_updated_dt, update_buffer=600):
         return pd.DataFrame()
 
     df = pd.json_normalize(all_orders)
+
+    if "line_items" in df.columns:
+        df["line_items"] = df["line_items"].apply(lambda j: json.dumps(j))
+
     return df
 
 
