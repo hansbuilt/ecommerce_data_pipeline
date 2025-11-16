@@ -2,19 +2,19 @@ WITH raw_orders AS (
 
     select * from (
 
-    SELECT
-        id as order_id,
-        REPLACE(
+        SELECT
+            id as order_id,
             REPLACE(
-                REPLACE(line_items, "'", '"'),
-                "None", "null"
-            ),
-            "True", "true"
-            ) as items_json,
-        row_number() over (partition by id order by updated_at desc) as rn
+                REPLACE(
+                    REPLACE(line_items, "'", '"'),
+                    "None", "null"
+                ),
+                "True", "true"
+                ) as items_json,
+            row_number() over (partition by id order by updated_at desc) as rn
 
-    FROM {{ source('raw_data','orders_raw') }}
-    ) 
+        FROM {{ source('raw_data','orders_raw') }}
+    ) a
     where rn = 1
 )
 
@@ -46,7 +46,7 @@ SELECT
     JSON_VALUE(items, '$.vendor') AS vendor,
     JSON_VALUE(items, '$.tax_lines') AS tax_lines,
     JSON_VALUE(items, '$.duties') AS duties,
-    JSON_VALUE(items, '$.discount_allocations') AS discount_allocations,
+    JSON_VALUE(items, '$.discount_allocations') AS discount_allocations
 
 FROM raw_orders,
 UNNEST(JSON_EXTRACT_ARRAY(items_json)) AS items
