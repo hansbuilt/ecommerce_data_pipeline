@@ -94,10 +94,15 @@ def allproductvariants_extract_upload():
     print("done")
 
 
-def incrementalorders_extract_upload():
-    """Creates a csv of the all orders extract and loads to BigQuery."""
+def incrementalorders_extract_upload(last_updated_dt=None):
+    """Creates a csv of the all orders extract and loads to BigQuery.
 
-    last_updated_dt = gbq.get_last_order_updatedt()
+    Allows last update date to be set manually, else it will pull the last updated dt from the raw dataset.
+
+    """
+
+    if not (last_updated_dt):
+        last_updated_dt = gbq.get_last_order_updatedt()
 
     file = extract_df_to_csv(
         sho.get_incremental_orders_df(last_updated_dt),
