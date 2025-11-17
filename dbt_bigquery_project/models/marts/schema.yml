@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: orders_daily_mart
+    description: "Daily aggregated metrics for order volume and revenue."
+    columns:
+      - name: order_date
+        description: "The date on which orders were placed."
+      - name: order_count
+        description: "Count of unique orders for the day."
+      - name: revenue
+        description: "Total order revenue for the day."
