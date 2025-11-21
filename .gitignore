@@ -4,3 +4,4 @@ __pycache__/
 data_raw/
 dbt_bigquery_project/logs/
 dbt_bigquery_project/target/
+notes.txt
