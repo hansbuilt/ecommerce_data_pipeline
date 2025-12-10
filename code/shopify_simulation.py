@@ -14,7 +14,9 @@ load_dotenv()
 # https://shopify.dev/docs/api/admin-graphql#rate-limits
 
 
-def create_order_narrowscope(customerId, lineItemList, addressDict, processedAt=None):
+def create_order_narrowscope(
+    customerId, lineItemList, addressDict, processedAt=None
+):
     """Create a single order with limited scope for the purposes of mocking up orders.
 
     customerId - int, will get joined with "gid://shopify/Customer/" string
@@ -49,7 +51,9 @@ def create_order_narrowscope(customerId, lineItemList, addressDict, processedAt=
     store_name = os.getenv("store_name")
     access_token = os.getenv("access_token")
 
-    base_url = f"https://{store_name}.myshopify.com/admin/api/2025-01/graphql.json"
+    base_url = (
+        f"https://{store_name}.myshopify.com/admin/api/2025-01/graphql.json"
+    )
 
     headers = {
         "X-Shopify-Access-Token": access_token,
@@ -407,7 +411,9 @@ def order_single_generator(randDate=False):
     else:
         processedAt = None
 
-    create_order_narrowscope(customerId, lineItemList, addressDict, processedAt)
+    create_order_narrowscope(
+        customerId, lineItemList, addressDict, processedAt
+    )
 
     print("done")
 
@@ -415,6 +421,7 @@ def order_single_generator(randDate=False):
 def create_multiple_customers(customerCount):
     """Generate a specified number of customers."""
 
+    print("Beginning multiple customer generation")
     for i in range(0, customerCount):
         try:
             customer_single_generator()
@@ -424,15 +431,31 @@ def create_multiple_customers(customerCount):
             print(f"Created customer {i+1} of {customerCount}")
 
 
-def create_multiple_orders(orderCount):
+def create_multiple_orders(orderCount, randDate=False):
     """Generate a specified number of orders. Per Shopify documentation, only 5 allowed per minute on dev stores."""
 
+    print("Beginning multiple order generation")
     for i in range(0, orderCount):
         try:
-            order_single_generator(randDate=True)
+            order_single_generator(randDate)
         except:
             break
         finally:
             print(f"Created order {i+1} of {orderCount}")
             print("Sleeping 13 seconds...")
             time.sleep(13)
+
+
+def simulate_shopify_cycle(max_orders=1, max_customers=1):
+    """Simulate the random creation of customers and orders, with inputs for max orders and max customers to possibly be generated per run"""
+
+    print("Beginning Shopify activity simulation")
+    customer_count = round(random.random() * max_customers)
+
+    order_count = round(random.random() * max_orders)
+
+    create_multiple_customers(customer_count)
+
+    create_multiple_orders(order_count)
+
+    print("Finished Shopify activity simulation")
