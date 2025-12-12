@@ -1,0 +1,8 @@
+[project]
+name = "ecommerce_data_pipeline"
+version = "0.1.0"
+description = "Airflow project code"
+requires-python = ">=3.11"
+
+[tool.setuptools]
+packages = ["code"]

@@ -7,16 +7,14 @@ import random
 from faker import Faker
 from datetime import datetime, timedelta
 import time
-import shopify_gen as sho
+from code import shopify_gen as sho
 
 load_dotenv()
 
 # https://shopify.dev/docs/api/admin-graphql#rate-limits
 
 
-def create_order_narrowscope(
-    customerId, lineItemList, addressDict, processedAt=None
-):
+def create_order_narrowscope(customerId, lineItemList, addressDict, processedAt=None):
     """Create a single order with limited scope for the purposes of mocking up orders.
 
     customerId - int, will get joined with "gid://shopify/Customer/" string
@@ -51,9 +49,7 @@ def create_order_narrowscope(
     store_name = os.getenv("store_name")
     access_token = os.getenv("access_token")
 
-    base_url = (
-        f"https://{store_name}.myshopify.com/admin/api/2025-01/graphql.json"
-    )
+    base_url = f"https://{store_name}.myshopify.com/admin/api/2025-01/graphql.json"
 
     headers = {
         "X-Shopify-Access-Token": access_token,
@@ -411,9 +407,7 @@ def order_single_generator(randDate=False):
     else:
         processedAt = None
 
-    create_order_narrowscope(
-        customerId, lineItemList, addressDict, processedAt
-    )
+    create_order_narrowscope(customerId, lineItemList, addressDict, processedAt)
 
     print("done")
 
@@ -454,8 +448,10 @@ def simulate_shopify_cycle(max_orders=1, max_customers=1):
 
     order_count = round(random.random() * max_orders)
 
+    print(f"Attempting to create these many customers: {customer_count}")
     create_multiple_customers(customer_count)
 
+    print(f"Attempting to create these many orders: {order_count}")
     create_multiple_orders(order_count)
 
     print("Finished Shopify activity simulation")
