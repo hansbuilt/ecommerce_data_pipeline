@@ -7,3 +7,4 @@ dbt_bigquery_project/target/
 notes.txt
 *.egg-info/
 *.egg
+dbt.log
