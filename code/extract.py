@@ -102,7 +102,13 @@ def incrementalorders_extract_upload(last_updated_dt=None):
     """
 
     if not (last_updated_dt):
-        last_updated_dt = gbq.get_last_order_updatedt()
+        try:
+            last_updated_dt = gbq.get_last_order_updatedt()
+        except:
+            print(
+                "Table may not exist to pull last updated dt, using beginning of time instead"
+            )
+            last_updated_dt = datetime(2025, 11, 1, 0, 0)
 
     file = extract_df_to_csv(
         sho.get_incremental_orders_df(last_updated_dt),
