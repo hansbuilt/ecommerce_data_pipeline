@@ -6,7 +6,7 @@ sys.path.append(str(project_root))
 
 from datetime import datetime
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
 
 from code.shopify_simulation import simulate_shopify_cycle
 

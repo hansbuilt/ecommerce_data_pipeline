@@ -7,7 +7,14 @@ import random
 from faker import Faker
 from datetime import datetime, timedelta
 import time
-from code import shopify_gen as sho
+from pathlib import Path
+
+# from code import shopify_gen as sho
+import shopify_gen as sho
+
+DAG_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = DAG_DIR.parent
+ZIP_DATA_PATH = PROJECT_ROOT / "data_supp" / "uszips.csv"
 
 load_dotenv()
 
@@ -290,10 +297,10 @@ def get_random_citystatezip():
 
     """
 
-    dataloc = "../data_supp/uszips.csv"
+    # dataloc = "../data_supp/uszips.csv"
 
     # ensure leading zeros on zip are retained
-    df = pd.read_csv(dataloc, dtype={"zip": str})
+    df = pd.read_csv(ZIP_DATA_PATH, dtype={"zip": str})
 
     randloc = df.sample(n=1, weights="population", random_state=None)
 
@@ -419,10 +426,11 @@ def create_multiple_customers(customerCount):
     for i in range(0, customerCount):
         try:
             customer_single_generator()
-        except:
-            break
-        finally:
             print(f"Created customer {i+1} of {customerCount}")
+
+        except Exception as e:
+            print(e)
+            break
 
 
 def create_multiple_orders(orderCount, randDate=False):
@@ -432,10 +440,12 @@ def create_multiple_orders(orderCount, randDate=False):
     for i in range(0, orderCount):
         try:
             order_single_generator(randDate)
-        except:
+            print(f"Created order {i+1} of {orderCount}")
+
+        except Exception as e:
+            print(e)
             break
         finally:
-            print(f"Created order {i+1} of {orderCount}")
             print("Sleeping 13 seconds...")
             time.sleep(13)
 
@@ -448,10 +458,18 @@ def simulate_shopify_cycle(max_orders=1, max_customers=1):
 
     order_count = round(random.random() * max_orders)
 
+    print("test if this appears")
+
     print(f"Attempting to create these many customers: {customer_count}")
-    create_multiple_customers(customer_count)
+    try:
+        create_multiple_customers(customer_count)
+    except Exception as e:
+        print(e)
 
     print(f"Attempting to create these many orders: {order_count}")
-    create_multiple_orders(order_count)
+    try:
+        create_multiple_orders(order_count)
+    except Exception as e:
+        print(e)
 
     print("Finished Shopify activity simulation")

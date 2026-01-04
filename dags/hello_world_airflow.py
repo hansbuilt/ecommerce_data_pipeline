@@ -10,7 +10,7 @@ def say_hello():
 with DAG(
     dag_id="hello_world_airflow_hb",
     start_date=datetime(2024, 1, 1),
-    schedule_interval=None,
+    # schedule_interval=None,
     catchup=False,
     tags=["test"],
 ) as dag:
