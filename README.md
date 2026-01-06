@@ -8,6 +8,8 @@ Create a data pipeline that:
 - products, variants, customers, orders, line items
 - need raw staging layer
 2. Cleans and transforms the data (python)
-3. Loads into a database (BigQuery)
-4. Create model layer for metrics (dbt)
-5. Visualize (tableau public)
+3. Loads raw data into a database (BigQuery)
+4. Staging for cleaning data, marts for final metrics (dbt)
+6. Scheduled dataset refresh for portability
+7. Scheduled connection refresh in Google Sheets to pull data from Bigquery dataset
+8. Visualize using Sheets data (tableau public)
