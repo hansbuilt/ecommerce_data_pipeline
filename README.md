@@ -15,8 +15,8 @@ Create a data pipeline that:
 
   Tableau Visuals:
 
-<img width="1112" height="642" alt="image" src="https://github.com/user-attachments/assets/b8c4d400-d06f-42d1-81c4-4a37a152435d" />
+<img width="2496" height="1304" alt="image" src="https://github.com/user-attachments/assets/d18b5880-fc57-442d-b3bf-fd208f1c7357" />
 
-<img width="1112" height="642" alt="image" src="https://github.com/user-attachments/assets/d700bda0-0805-4376-8445-434c5de05ec3" />
+<img width="2464" height="1258" alt="image" src="https://github.com/user-attachments/assets/cbcd2194-8ed4-480b-8045-c873c10db9a4" />
 
-<img width="1112" height="642" alt="image" src="https://github.com/user-attachments/assets/5a7ab0c7-4b36-49a0-a968-f2182219d7ce" />
+<img width="2496" height="1304" alt="image" src="https://github.com/user-attachments/assets/bd5f9729-a8ac-4c68-9e15-8d2e831f63ba" />
